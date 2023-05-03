@@ -12,7 +12,7 @@ def crop_image(im, w, h, wc, hc):
     sh = h // hc
     for i in range(hc):
         for j in range(wc):
-            lst.append(im.crop((sw*j, sh*i, sw*j+sw, sh*i+sh)))
+            lst.append(im.crop((sw*j, sh*i, sw*j+sw-1, sh*i+sh-1)))
     return lst
 
 
@@ -37,20 +37,20 @@ def gen_tab(wc, hc):
     random.shuffle(b)
     return b
 
-# @jit
-# def unsplice_image(im, mapt, w, h, wc, hc):
-#     new_lst = []
-#     for i in range(hc):
-#         row_lst = []
-#         for j in range(wc):
-#             row_lst.append(im[i*wc+j])
-#         new_lst.append(row_lst)
-#     
-#     new_im = Image.new('RGB', (w, h), (0, 0, 0))
-#     for i in range(hc):
-#         for j in range(wc):
-#             new_im.paste(new_lst[mapt[i][j][0]][mapt[i][j][1]], (j*w//wc, i*h//hc))
-#     return new_im
+@jit
+def unsplice_image(im, mapt, w, h, wc, hc):
+    new_lst = []
+    for i in range(hc):
+        row_lst = []
+        for j in range(wc):
+            row_lst.append(im[i*wc+j])
+        new_lst.append(row_lst)
+    
+    new_im = Image.new('RGB', (w, h), (0, 0, 0))
+    for i in range(hc):
+        for j in range(wc):
+            new_im.paste(new_lst[mapt[i][j][0]][mapt[i][j][1]], (j*w//wc, i*h//hc))
+    return new_im
 
 
 

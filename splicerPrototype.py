@@ -1,3 +1,4 @@
+# -*- coding:UTF-8 -*-
 import cv2
 import random
 from numba import jit
@@ -39,31 +40,33 @@ def splice_image(im, mapt, w, h, wc, hc):
             new_im.paste(new_lst[mapt[i][j][0]][mapt[i][j][1]], (j*w//wc, i*h//hc))
     return new_im
 
-cap = cv2.VideoCapture('直播流地址')
+cap = cv2.VideoCapture('rtmp://localhost:1935/live/movie')
 fps = cap.get(cv2.CAP_PROP_FPS)
 
 b = int(input('Chunk per line: '))
 a = int(input('Chunk per row: '))
 token = int(input("Token: "))
-mapt = gen_tab(b, a)
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) / b)
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) / a)
 random.seed(get_seed(token))
+
+mapt = gen_tab(b, a)
 while True:
     ret, frame = cap.read()
     
     if not ret:
         break
     
-    parts = crop_image(Image.fromarray(cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)),cv2.CAP_PROP_FRAME_WIDTH,cv2.CAP_PROP_FRAME_HEIGHT,width,height)
+    parts = crop_image(Image.fromarray(frame),frame.shape[1],frame.shape[0],b,a)
     
-    result = numpy.asarray(splice_image(parts, mapt, cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, width, height))
+    # print(parts)
+    result = numpy.asarray(splice_image(parts, mapt, frame.shape[1], frame.shape[0],b,a))
     
-    cv2.imshow('Swapped', result)
-    
+    try:
+        cv2.imshow('Decoded', result)
+    except:
+        None
+        
     if cv2.waitKey(int(1000 / fps)) & 0xFF == ord('q'):
         break
 
-print("寄了")
 cap.release()
 cv2.destroyAllWindows()
