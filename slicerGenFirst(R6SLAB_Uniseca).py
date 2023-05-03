@@ -3,8 +3,9 @@ import random
 import pyvirtualcam
 import numpy
 import sys
+from numba import jit
 
-
+@jit
 def crop_image(im, w, h, wc, hc):
     lst = []
     sw = w // wc
@@ -18,7 +19,7 @@ def crop_image(im, w, h, wc, hc):
 def get_seed(token):
     return (token * token * token) % 1000000
 
-
+@jit
 def splice_image(im, mapt, w, h, wc, hc):
     sw = w // wc
     sh = h // hc
@@ -52,7 +53,7 @@ def main():
     random.seed(get_seed(token))
     mapt = gen_tab(wc, hc)
 
-    with pyvirtualcam.Camera(width=w, height=h, fps=fr) as cam:
+    with pyvirtualcam.Camera(width=w, height=h, fps=fr, print_fps=True) as cam:
         print(f'Using virtual camera: {cam.device}')
         while True:
             im = ImageGrab.grab((0, 0, w, h))
