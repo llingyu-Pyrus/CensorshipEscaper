@@ -37,6 +37,22 @@ def gen_tab(wc, hc):
     random.shuffle(b)
     return b
 
+# @jit
+# def unsplice_image(im, mapt, w, h, wc, hc):
+#     new_lst = []
+#     for i in range(hc):
+#         row_lst = []
+#         for j in range(wc):
+#             row_lst.append(im[i*wc+j])
+#         new_lst.append(row_lst)
+#     
+#     new_im = Image.new('RGB', (w, h), (0, 0, 0))
+#     for i in range(hc):
+#         for j in range(wc):
+#             new_im.paste(new_lst[mapt[i][j][0]][mapt[i][j][1]], (j*w//wc, i*h//hc))
+#     return new_im
+
+
 
 def main():
     token = int(input('Input token: '))
@@ -45,6 +61,13 @@ def main():
     wc = int(input(r'How many chunks do you want per line (w%wc=0) : '))
     hc = int(input(r'How many chunks do you want per row (h%hc=0) : '))
     fr = int(input(r'Input framerate (30 recommended) : '))
+
+    # token = 123
+    # w = 1280
+    # h = 720
+    # wc = 10
+    # hc = 10
+    # fr = 30
 
     if not (w % wc == 0) or not (h % hc == 0):
         print('Error: chunk must be integer')
@@ -57,8 +80,8 @@ def main():
         print(f'Using virtual camera: {cam.device}')
         while True:
             im = ImageGrab.grab((0, 0, w, h))
-            lst = crop_image(im, w, h, wc, hc)
-            cam.send(numpy.asarray(splice_image(lst, mapt, w, h, wc, hc)))
+            croppedim = crop_image(im, w, h, wc, hc)
+            cam.send(numpy.asarray(splice_image(croppedim, mapt, w, h, wc, hc)))
             cam.sleep_until_next_frame()
 
 
